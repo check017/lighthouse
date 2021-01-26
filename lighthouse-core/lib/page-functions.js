@@ -153,10 +153,18 @@ function getOuterHTMLSnippet(element, ignoreAttrs = [], snippetCharacterLimit = 
     });
     let charCount = 0;
     for (const attributeName of clone.getAttributeNames()) {
+      let attributeValue = clone.getAttribute(attributeName);
+      if (attributeName === 'src' && element.tagName === 'IMG') {
+        attributeValue = /** @type {HTMLImageElement} */ (element).currentSrc;
+        clone.setAttribute(attributeName, attributeValue);
+      }
+
       if (charCount > snippetCharacterLimit) {
         clone.removeAttribute(attributeName);
       } else {
-        let attributeValue = clone.getAttribute(attributeName);
+        if (attributeName === 'src' && element.tagName === 'IMG') {
+          attributeValue = /** @type {HTMLImageElement} */ (element).currentSrc;
+        }
         if (attributeValue === null) continue;
         if (attributeValue.length > ATTRIBUTE_CHAR_LIMIT) {
           attributeValue = attributeValue.slice(0, ATTRIBUTE_CHAR_LIMIT - 1) + '…';

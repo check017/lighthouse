@@ -73,6 +73,12 @@ describe('Page Functions', () => {
         dom.createElement('div', '', {id: '1', style: 'style'})), '<div id="1" style="style">');
     });
 
+    it('replaces img.src with img.currentSrc', () => {
+      const el = dom.createElement('img', '', {id: '1', src: 'no'});
+      Object.defineProperty(el, 'currentSrc', {value: 'yes'});
+      assert.equal(pageFunctions.getOuterHTMLSnippet(el), '<img id="1" src="yes">');
+    });
+
     it('removes a specific attribute', () => {
       assert.equal(pageFunctions.getOuterHTMLSnippet(
         dom.createElement('div', '', {id: '1', style: 'style'}), ['style']), '<div id="1">');
