@@ -13,10 +13,11 @@ const pageFunctions = require('../../lib/page-functions.js');
 /* eslint-env jest */
 
 describe('Page Functions', () => {
+  const url = 'http://www.example.com';
   let dom;
 
   beforeAll(() => {
-    const {document, ShadowRoot, Node, HTMLElement} = new jsdom.JSDOM().window;
+    const {document, ShadowRoot, Node, HTMLElement} = new jsdom.JSDOM('', {url}).window;
     global.ShadowRoot = ShadowRoot;
     global.Node = Node;
     global.HTMLElement = HTMLElement;
@@ -77,6 +78,12 @@ describe('Page Functions', () => {
       const el = dom.createElement('img', '', {id: '1', src: 'no'});
       Object.defineProperty(el, 'currentSrc', {value: 'yes'});
       assert.equal(pageFunctions.getOuterHTMLSnippet(el), '<img id="1" src="yes">');
+    });
+
+    it('does not replace img.src with img.currentSrc if resolve to same URL', () => {
+      const el = dom.createElement('img', '', {id: '1', src: './a.png'});
+      Object.defineProperty(el, 'currentSrc', {value: `${url}/a.png`});
+      assert.equal(pageFunctions.getOuterHTMLSnippet(el), '<img id="1" src="./a.png">');
     });
 
     it('removes a specific attribute', () => {
