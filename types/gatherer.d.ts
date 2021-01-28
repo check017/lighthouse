@@ -8,6 +8,7 @@ import _NetworkNode = require('../lighthouse-core/lib/dependency-graph/network-n
 import _CPUNode = require('../lighthouse-core/lib/dependency-graph/cpu-node');
 import _Simulator = require('../lighthouse-core/lib/dependency-graph/simulator/simulator');
 import Driver = require('../lighthouse-core/gather/driver');
+import ExecutionContext = require('../lighthouse-core/gather/driver/execution-context');
 
 declare global {
   module LH.Gatherer {
@@ -26,8 +27,7 @@ declare global {
     /** The limited driver interface shared between pre and post Fraggle Rock Lighthouse. */
     export interface FRTransitionalDriver {
       defaultSession: FRProtocolSession;
-      evaluateAsync(expression: string, options?: {useIsolation?: boolean}): Promise<any>;
-      evaluate<T extends any[], R>(mainFn: (...args: T) => R, options: {args: T, useIsolation?: boolean, deps?: Array<Function|string>}): FlattenedPromise<R>;
+      executionContext: ExecutionContext;
     }
 
     /** The limited context interface shared between pre and post Fraggle Rock Lighthouse. */
@@ -40,7 +40,7 @@ declare global {
       gatherMode: 'navigation';
       /** The url of the currently loaded page. If the main document redirects, this will be updated to keep track. */
       url: string;
-      driver: Driver;
+      driver: Omit<Driver, 'evaluate'|'evaluateAsync'>;
       passConfig: Config.Pass
       settings: Config.Settings;
       /** Gatherers can push to this array to add top-level warnings to the LHR. */
