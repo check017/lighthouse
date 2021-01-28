@@ -40,7 +40,7 @@ declare global {
       gatherMode: 'navigation';
       /** The url of the currently loaded page. If the main document redirects, this will be updated to keep track. */
       url: string;
-      driver: Omit<Driver, 'evaluate'|'evaluateAsync'>;
+      driver: Driver;
       passConfig: Config.Pass
       settings: Config.Settings;
       /** Gatherers can push to this array to add top-level warnings to the LHR. */
