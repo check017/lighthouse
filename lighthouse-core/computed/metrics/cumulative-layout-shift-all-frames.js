@@ -5,10 +5,38 @@
  */
 'use strict';
 
+/** @typedef {Omit<LH.TraceEvent, 'name'|'args'> & {name: 'LayoutShift', args: {data: {score: number, weighted_score_delta: number, had_recent_input: boolean}}}} LayoutShiftEvent */
+
 const makeComputedArtifact = require('../computed-artifact.js');
 const TraceOfTab = require('../trace-of-tab.js');
+const LHError = require('../../lib/lh-error.js');
 
 class CumulativeLayoutShiftAllFrames {
+  /**
+   * @param {LH.TraceEvent} event
+   * @return {event is LayoutShiftEvent}
+   */
+  static isLayoutShiftEvent(event) {
+    if (
+      event.name !== 'LayoutShift' ||
+      !event.args ||
+      !event.args.data ||
+      !event.args.data.score ||
+      event.args.data.had_recent_input
+    ) return false;
+
+    // Weighted score was added to the trace in m89:
+    // https://bugs.chromium.org/p/chromium/issues/detail?id=1173139
+    if (typeof event.args.data.weighted_score_delta !== 'number') {
+      throw new LHError(
+        LHError.errors.UNSUPPORTED_OLD_CHROME,
+        {featureName: 'Cumulative Layout Shift All Frames'}
+      );
+    }
+
+    return true;
+  }
+
   /**
    * @param {LH.Trace} trace
    * @param {LH.Audit.Context} context
@@ -17,17 +45,8 @@ class CumulativeLayoutShiftAllFrames {
   static async compute_(trace, context) {
     const traceOfTab = await TraceOfTab.request(trace, context);
     const cumulativeShift = traceOfTab.frameTreeEvents
-      .filter(e =>
-        e.name === 'LayoutShift' &&
-        e.args &&
-        e.args.data &&
-        e.args.data.score &&
-        !e.args.data.had_recent_input
-      )
-      .map(e => {
-        // @ts-expect-error Events without score are filtered out.
-        return /** @type {number} */ (e.args.data.score);
-      })
+      .filter(this.isLayoutShiftEvent)
+      .map(e => e.args.data.weighted_score_delta)
       .reduce((sum, score) => sum + score, 0);
     return {
       value: cumulativeShift,
