@@ -133,6 +133,7 @@ class FullPageScreenshot extends Gatherer {
    */
   async afterPass(passContext) {
     const {driver} = passContext;
+    const executionContext = driver.executionContext;
 
     // In case some other program is controlling emulation, try to remember what the device looks
     // like now and reset after gatherer is done.
@@ -172,7 +173,6 @@ class FullPageScreenshot extends Gatherer {
           };
         }
 
-        const executionContext = driver.executionContext;
         const observedDeviceMetrics = await executionContext.evaluate(getObservedDeviceMetrics, {
           args: [],
           useIsolation: true,

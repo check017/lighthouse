@@ -19,9 +19,11 @@ describe('Accessibility gatherer', () => {
 
   it('fails if nothing is returned', () => {
     return accessibilityGather.afterPass({
-      driver: {executionContext: {
-        async evaluate() {},
-      }},
+      driver: {
+        executionContext: {
+          async evaluate() {},
+        },
+      },
     }).then(
       _ => assert.ok(false),
       _ => assert.ok(true));
@@ -29,13 +31,15 @@ describe('Accessibility gatherer', () => {
 
   it('fails if result has no violations array', () => {
     return accessibilityGather.afterPass({
-      driver: {executionContext: {
-        async evaluate() {
-          return {
-            url: 'https://example.com',
-          };
+      driver: {
+        executionContext: {
+          async evaluate() {
+            return {
+              url: 'https://example.com',
+            };
+          },
         },
-      }},
+      },
     }).then(
       _ => assert.ok(false),
       _ => assert.ok(true));
@@ -44,11 +48,13 @@ describe('Accessibility gatherer', () => {
   it('propagates error retrieving the results', () => {
     const error = 'There was an error.';
     return accessibilityGather.afterPass({
-      driver: {executionContext: {
-        async evaluate() {
-          throw new Error(error);
+      driver: {
+        executionContext: {
+          async evaluate() {
+            throw new Error(error);
+          },
         },
-      }},
+      },
     }).then(
       _ => assert.ok(false),
       err => assert.ok(err.message.includes(error)));
