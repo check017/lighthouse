@@ -21,7 +21,7 @@ class CumulativeLayoutShiftAllFrames {
       event.name !== 'LayoutShift' ||
       !event.args ||
       !event.args.data ||
-      !event.args.data.score ||
+      event.args.data.score === undefined ||
       event.args.data.had_recent_input
     ) return false;
 
